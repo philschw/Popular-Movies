@@ -1,0 +1,35 @@
+<!--
+<?xml version="1.0" encoding="utf-8"?>
+<ImageView xmlns:android="http://schemas.android.com/apk/res/android"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:id="@+id/grid_item_movies_imageView" />
+        -->
+
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:padding="0dp">
+
+    <com.example.android.popularmovies.ResizedImageView
+        android:id="@+id/grid_item_movies_imageView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:adjustViewBounds="true">
+    </com.example.android.popularmovies.ResizedImageView>
+
+    <TextView
+        android:id="@+id/grid_item_movies_textView"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="0dp"
+        android:paddingRight="0dp"
+        android:paddingTop="0dp"
+        android:paddingBottom="0dp"
+        android:gravity="center"
+        android:layout_gravity="bottom"
+        android:textColor="@android:color/white"
+        android:background="#55000000"
+        />
+
+</FrameLayout>

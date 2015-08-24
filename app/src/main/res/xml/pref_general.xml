@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <ListPreference
+        android:entries="@array/sort_order"
+        android:title="@string/pref_sort_order_label"
+        android:key="@string/pref_sort_order_key"
+        android:entryValues="@array/sort_order_values"
+        android:dialogTitle="@string/pref_sort_order_label"
+        android:defaultValue="0"
+        android:selectable="true"
+        android:enabled="true">
+    </ListPreference>
+
+</PreferenceScreen>
