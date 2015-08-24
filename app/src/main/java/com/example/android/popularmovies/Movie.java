@@ -97,5 +97,4 @@ public class Movie implements Parcelable {
         voteAverage = in.readString();
         plot = in.readString();
     }
-
 }

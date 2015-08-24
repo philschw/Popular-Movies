@@ -40,7 +40,6 @@ import java.util.ArrayList;
  *  It does a callback to the activity if the user clicks on one of the grid items
  */
 public class MainActivityFragment extends Fragment {
-    static final String MOVIE_ARRAY_STATE = "movieArrayState";
     static final String STATE_SCROLL = "scrollState";
     static int scrollIndex;
     static int lastClickedItem = 0;
@@ -58,44 +57,18 @@ public class MainActivityFragment extends Fragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        if(savedInstanceState == null || !savedInstanceState.containsKey(MOVIE_ARRAY_STATE)) {
-            updateMovies();
-        }
-        else {
-            View rootView = getActivity().findViewById(android.R.id.content);
-            GridView gridView = (GridView) rootView.findViewById(R.id.moviesGridView);
-            mMovieGridView = gridView;
-            gridView.setAdapter(mPopularMoviesAdapter);
-            gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-                @Override
-                public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                    lastClickedItem = position;
-                    itemClicked(position);
-                }
-            });
-            movieArrayList = savedInstanceState.getParcelableArrayList(MOVIE_ARRAY_STATE);
-
-            mPopularMoviesAdapter = new MovieGridViewAdapter(
-                    getActivity(), // The current context (this activity)
-                    R.id.grid_item_movies_imageView,
-                    movieArrayList);
-
-            updateGrid(true);
-        }
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
+        updateMovies();
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
         savedInstanceState.putInt(STATE_SCROLL, mMovieGridView.getFirstVisiblePosition());
-        savedInstanceState.putParcelableArrayList(MOVIE_ARRAY_STATE, movieArrayList);
-
         scrollIndex = mMovieGridView.getFirstVisiblePosition();
 
         // Always call the superclass so it can save the view hierarchy state
@@ -178,15 +151,13 @@ public class MainActivityFragment extends Fragment {
         new FetchMovieData().execute(getString(R.string.api_key));
     }
 
-    private void updateGrid(boolean orientationChanged) {
-        if(mPopularMoviesAdapter != null && mMovieGridView != null) {
-            mMovieGridView.setAdapter(mPopularMoviesAdapter);
-            mMovieGridView.setSelection(scrollIndex);
-            mMovieGridView.invalidate();
-
-            if (lastClickedItem == 0 && !orientationChanged) {
-                itemClicked(lastClickedItem);
-            }
+    private void updateGrid() {
+        GridView gridView = (GridView) getActivity().findViewById(R.id.moviesGridView);
+        gridView.setAdapter(mPopularMoviesAdapter);
+        mMovieGridView.setSelection(scrollIndex);
+        gridView.invalidate();
+        if (lastClickedItem == 0) {
+            itemClicked(lastClickedItem);
         }
 
     }
@@ -203,7 +174,7 @@ public class MainActivityFragment extends Fragment {
                     mPopularMoviesAdapter.add(singleMovie);
                     //Log.v(LOG_TAG, "GETCOUNT: " + mPopularMoviesAdapter.getCount());
                 }
-                updateGrid(false);
+                updateGrid();
             }
 
         }

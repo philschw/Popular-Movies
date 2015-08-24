@@ -11,6 +11,10 @@ import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+import android.widget.TextView;
+
+import com.squareup.picasso.Picasso;
 
 /**
  * Creates the movie detail layout. Has a public update method for the activity to update it's data
@@ -85,24 +89,14 @@ public class MovieDetailActivityFragment extends Fragment {
     }
 
     private void updateViews ()
-    {/*
+    {
         Picasso.with(getActivity())
                 .load(mMovie.getPosterPath())
-                .into(((ImageView) getActivity().findViewById(R.id.detail_movies_imageView)));
+                .into(((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)));
 
-        if(mMovie.getReleaseDate().length() > 4){
-            ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate().substring(0,4));
-        } else{
-            ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate());
-        }
-
+        ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate().substring(0,4));
         ((TextView) mRootView.findViewById(R.id.textViewPlot)).setText(mMovie.getPlot());
-
-        if(mMovie.getVoteAverage().length() > 0){
-            ((TextView) mRootView.findViewById(R.id.textViewRating)).setText(mMovie.getVoteAverage() + "/10");
-        } else{
-            ((TextView) mRootView.findViewById(R.id.textViewRating)).setText("na/10");
-        }
-        ((TextView) mRootView.findViewById(R.id.textViewTitle)).setText(mMovie.getTitle());*/
+        ((TextView) mRootView.findViewById(R.id.textViewRating)).setText(mMovie.getVoteAverage() + "/10");
+        ((TextView) mRootView.findViewById(R.id.textViewTitle)).setText(mMovie.getTitle());
     }
 }
