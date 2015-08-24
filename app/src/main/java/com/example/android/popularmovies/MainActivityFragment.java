@@ -40,6 +40,7 @@ import java.util.ArrayList;
  *  It does a callback to the activity if the user clicks on one of the grid items
  */
 public class MainActivityFragment extends Fragment {
+    static final String MOVIE_ARRAY_STATE = "movieArrayState";
     static final String STATE_SCROLL = "scrollState";
     static int scrollIndex;
     static int lastClickedItem = 0;
@@ -56,19 +57,20 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
     }
 
     @Override
     public void onStart() {
         super.onStart();
-        updateMovies();
+        //updateMovies();
     }
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
         savedInstanceState.putInt(STATE_SCROLL, mMovieGridView.getFirstVisiblePosition());
+        savedInstanceState.putParcelableArrayList(MOVIE_ARRAY_STATE, movieArrayList);
+
         scrollIndex = mMovieGridView.getFirstVisiblePosition();
 
         // Always call the superclass so it can save the view hierarchy state
@@ -102,18 +104,23 @@ public class MainActivityFragment extends Fragment {
 
         setHasOptionsMenu(true);
 
-        // Now that we have some dummy forecast data, create an ArrayAdapter.
-        // The ArrayAdapter will take data from a source (like our dummy forecast) and
-        // use it to populate the ListView it's attached to.
-        ArrayList<Movie> list = new ArrayList<>();
+        movieArrayList = new ArrayList<>();
+
+        if(savedInstanceState == null || !savedInstanceState.containsKey(MOVIE_ARRAY_STATE)) {
+            updateMovies();
+        }
+        else {
+            movieArrayList = savedInstanceState.getParcelableArrayList(MOVIE_ARRAY_STATE);
+        }
 
         mPopularMoviesAdapter = new MovieGridViewAdapter(
                 getActivity(), // The current context (this activity)
                 R.id.grid_item_movies_imageView,
-                list);
+                movieArrayList);
+
+        //updateGrid();
 
         View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-
 
         // Get a reference to the ListView, and attach this adapter to it.
         GridView gridView = (GridView) rootView.findViewById(R.id.moviesGridView);
@@ -152,12 +159,14 @@ public class MainActivityFragment extends Fragment {
     }
 
     private void updateGrid() {
-        GridView gridView = (GridView) getActivity().findViewById(R.id.moviesGridView);
-        gridView.setAdapter(mPopularMoviesAdapter);
-        mMovieGridView.setSelection(scrollIndex);
-        gridView.invalidate();
-        if (lastClickedItem == 0) {
-            itemClicked(lastClickedItem);
+        if(mPopularMoviesAdapter != null && mMovieGridView != null) {
+            mMovieGridView.setAdapter(mPopularMoviesAdapter);
+            mMovieGridView.setSelection(scrollIndex);
+            mMovieGridView.invalidate();
+
+            if (lastClickedItem == 0) {
+                itemClicked(lastClickedItem);
+            }
         }
 
     }
