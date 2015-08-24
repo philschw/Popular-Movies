@@ -94,9 +94,19 @@ public class MovieDetailActivityFragment extends Fragment {
                 .load(mMovie.getPosterPath())
                 .into(((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)));
 
-        ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate().substring(0,4));
+        if(mMovie.getReleaseDate().length() > 4){
+            ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate().substring(0,4));
+        } else{
+            ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate());
+        }
+
         ((TextView) mRootView.findViewById(R.id.textViewPlot)).setText(mMovie.getPlot());
-        ((TextView) mRootView.findViewById(R.id.textViewRating)).setText(mMovie.getVoteAverage() + "/10");
+
+        if(mMovie.getVoteAverage().length() > 0){
+            ((TextView) mRootView.findViewById(R.id.textViewRating)).setText(mMovie.getVoteAverage() + "/10");
+        } else{
+            ((TextView) mRootView.findViewById(R.id.textViewRating)).setText("na/10");
+        }
         ((TextView) mRootView.findViewById(R.id.textViewTitle)).setText(mMovie.getTitle());
     }
 }
