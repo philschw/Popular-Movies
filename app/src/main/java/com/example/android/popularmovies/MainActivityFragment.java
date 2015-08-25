@@ -42,7 +42,6 @@ import java.util.ArrayList;
 public class MainActivityFragment extends Fragment {
     static final String MOVIE_ARRAY_STATE = "movieArrayState";
     static final String STATE_SCROLL = "scrollState";
-    static int scrollIndex;
     static int lastClickedItem = 0;
     OnItemSelectedListener mCallback;
     View mRootView;
@@ -57,6 +56,7 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        updateSortOrder(); // called here so it will be ready after rotate which will otherwise be confused with start
         super.onCreate(savedInstanceState);
     }
 
@@ -68,10 +68,8 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-        savedInstanceState.putInt(STATE_SCROLL, mMovieGridView.getFirstVisiblePosition());
+        savedInstanceState.putInt(STATE_SCROLL, lastClickedItem);
         savedInstanceState.putParcelableArrayList(MOVIE_ARRAY_STATE, movieArrayList);
-
-        scrollIndex = mMovieGridView.getFirstVisiblePosition();
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -107,7 +105,7 @@ public class MainActivityFragment extends Fragment {
             if (!lastSortOrder.equals(mSortOrder)) {
                 updateMovies();
             }
-            mMovieGridView.setSelection(scrollIndex);
+            mMovieGridView.smoothScrollToPosition(lastClickedItem);
             mMovieGridView.invalidate();
         }
         super.onResume();
@@ -139,10 +137,9 @@ public class MainActivityFragment extends Fragment {
 
 
         // Get a reference to the ListView, and attach this adapter to it.
-        GridView gridView = (GridView) mRootView.findViewById(R.id.moviesGridView);
-        mMovieGridView = gridView;
-        gridView.setAdapter(mPopularMoviesAdapter);
-        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        mMovieGridView = (GridView) mRootView.findViewById(R.id.moviesGridView);
+        mMovieGridView.setAdapter(mPopularMoviesAdapter);
+        mMovieGridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 lastClickedItem = position;
@@ -153,8 +150,9 @@ public class MainActivityFragment extends Fragment {
         // Check whether a previously destroyed instance is being recreated
         if (savedInstanceState != null) {
             // Restore value of members from saved state
-            gridView.setSelection(savedInstanceState.getInt(STATE_SCROLL));
-            gridView.invalidate();
+            lastClickedItem = savedInstanceState.getInt(STATE_SCROLL);
+            mMovieGridView.smoothScrollToPosition(lastClickedItem);
+            mMovieGridView.invalidate();
         }
 
         return mRootView;
@@ -178,7 +176,8 @@ public class MainActivityFragment extends Fragment {
     private void updateGrid() {
         if(mPopularMoviesAdapter != null && mMovieGridView != null) {
             mMovieGridView.setAdapter(mPopularMoviesAdapter);
-            mMovieGridView.setSelection(scrollIndex);
+            mMovieGridView.requestFocusFromTouch();
+            mMovieGridView.smoothScrollToPosition(lastClickedItem);
             mMovieGridView.invalidate();
 
         }
@@ -198,6 +197,7 @@ public class MainActivityFragment extends Fragment {
                     //Log.v(LOG_TAG, "GETCOUNT: " + mPopularMoviesAdapter.getCount());
                 }
                 updateGrid();
+                itemClicked(0); //set item number 0 as initially selected item
             }
 
         }
