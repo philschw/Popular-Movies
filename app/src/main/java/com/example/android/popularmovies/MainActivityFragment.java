@@ -46,6 +46,7 @@ public class MainActivityFragment extends Fragment {
     static int lastClickedItem = 0;
     OnItemSelectedListener mCallback;
     View mRootView;
+    String mSortOrder;
 
     private MovieGridViewAdapter mPopularMoviesAdapter;
     private static GridView mMovieGridView;
@@ -62,7 +63,6 @@ public class MainActivityFragment extends Fragment {
     @Override
     public void onStart() {
         super.onStart();
-        //updateMovies();
     }
 
     @Override
@@ -91,8 +91,18 @@ public class MainActivityFragment extends Fragment {
         }
     }
 
+    private void updateSortOrder() {
+        SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        mSortOrder = prefs.getString(getString(R.string.pref_sort_order_key),getString(R.string.pref_sort_order_default));
+    }
+
     @Override
-    public void onResume(){
+    public void onResume() {
+        String lastSortOrder = mSortOrder;
+        updateSortOrder();
+        if(!lastSortOrder.equals(mSortOrder)) {
+            updateMovies();
+        }
         mMovieGridView.setSelection(scrollIndex);
         mMovieGridView.invalidate();
         super.onResume();
@@ -156,6 +166,7 @@ public class MainActivityFragment extends Fragment {
 
 
     private void updateMovies() {
+        updateSortOrder();
         new FetchMovieData().execute(getString(R.string.api_key));
     }
 
@@ -193,8 +204,8 @@ public class MainActivityFragment extends Fragment {
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
 
-            SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
-            String sort_order = prefs.getString(getString(R.string.pref_sort_order_key),getString(R.string.pref_sort_order_default));
+            //SharedPreferences prefs = PreferenceManager.getDefaultSharedPreferences(getActivity());
+            //String sort_order = prefs.getString(getString(R.string.pref_sort_order_key),getString(R.string.pref_sort_order_default));
 
             // Will contain the raw JSON response as a string.
             String moviesJsonStr;
@@ -206,7 +217,7 @@ public class MainActivityFragment extends Fragment {
                 final String API_KEY = "api_key";
 
                 Uri builtUri = Uri.parse(BASE_URL).buildUpon()
-                        .appendQueryParameter(SORT_BY, sort_order)
+                        .appendQueryParameter(SORT_BY, mSortOrder)
                         .appendQueryParameter(API_KEY, apiKey[0])
                         .build();
 
