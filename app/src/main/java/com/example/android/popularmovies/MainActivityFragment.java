@@ -143,7 +143,7 @@ public class MainActivityFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 lastClickedItem = position;
-                itemClicked(position);
+                itemClicked(position, false);
             }
         });
 
@@ -158,11 +158,11 @@ public class MainActivityFragment extends Fragment {
         return mRootView;
     }
 
-    private void itemClicked(int position)
+    private void itemClicked(int position, boolean first_init)
     {
         if(movieArrayList != null) {
             if(movieArrayList.size() > 0) {
-                mCallback.newMovieSelected(movieArrayList.get(position));
+                mCallback.newMovieSelected(movieArrayList.get(position), first_init);
             }
         }
     }
@@ -197,7 +197,7 @@ public class MainActivityFragment extends Fragment {
                     //Log.v(LOG_TAG, "GETCOUNT: " + mPopularMoviesAdapter.getCount());
                 }
                 updateGrid();
-                itemClicked(0); //set item number 0 as initially selected item
+                itemClicked(0, true); //set item number 0 as initially selected item
             }
 
         }
@@ -337,5 +337,5 @@ public class MainActivityFragment extends Fragment {
 }
 
 interface OnItemSelectedListener {
-    void newMovieSelected(Movie movie);
+    void newMovieSelected(Movie movie, boolean first_init);
 }

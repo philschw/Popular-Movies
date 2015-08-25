@@ -57,7 +57,7 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
     }
 
     @Override
-    public void newMovieSelected(Movie movie) {
+    public void newMovieSelected(Movie movie, boolean first_init) {
         android.support.v4.app.Fragment f = getSupportFragmentManager().findFragmentById(R.id.detailFragment);
         if(f != null && f instanceof MovieDetailActivityFragment){
             // Fragment is in the layout (tablet layout),
@@ -68,9 +68,13 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
             // Fragment is not in the layout (handset layout),
             // so start Activity
             // and pass it the info about the selected item
-            Intent showMovieDetailIntent = new Intent(this, MovieDetailActivity.class);
-            showMovieDetailIntent.putExtra(getString(R.string.movie_intent_extra_key), movie);
-            startActivity(showMovieDetailIntent);
+
+            //first init is only necessary on tablets on handsets it would simulate a click which is wrong
+            if(!first_init) {
+                Intent showMovieDetailIntent = new Intent(this, MovieDetailActivity.class);
+                showMovieDetailIntent.putExtra(getString(R.string.movie_intent_extra_key), movie);
+                startActivity(showMovieDetailIntent);
+            }
         }
     }
 }
