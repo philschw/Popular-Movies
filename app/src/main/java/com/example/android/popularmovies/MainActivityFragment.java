@@ -98,13 +98,18 @@ public class MainActivityFragment extends Fragment {
 
     @Override
     public void onResume() {
-        String lastSortOrder = mSortOrder;
-        updateSortOrder();
-        if(!lastSortOrder.equals(mSortOrder)) {
+        if(mSortOrder == null) {
+            updateSortOrder();
             updateMovies();
+        } else {
+            String lastSortOrder = mSortOrder;
+            updateSortOrder();
+            if (!lastSortOrder.equals(mSortOrder)) {
+                updateMovies();
+            }
+            mMovieGridView.setSelection(scrollIndex);
+            mMovieGridView.invalidate();
         }
-        mMovieGridView.setSelection(scrollIndex);
-        mMovieGridView.invalidate();
         super.onResume();
     }
 
