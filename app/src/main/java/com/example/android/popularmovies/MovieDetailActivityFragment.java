@@ -42,11 +42,20 @@ public class MovieDetailActivityFragment extends Fragment {
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
         // Save the user's current game state
-        savedInstanceState.putString(STATE_RELEASE_DATE, mMovie.getReleaseDate());
-        savedInstanceState.putString(STATE_PLOT, mMovie.getPlot());
-        savedInstanceState.putString(STATE_VOTE_AVERAGE, mMovie.getVoteAverage());
-        savedInstanceState.putString(STATE_TITLE, mMovie.getTitle());
-        savedInstanceState.putString(STATE_POSTER_PATH, mMovie.getPosterPath());
+        if(mMovie != null) {
+            savedInstanceState.putString(STATE_RELEASE_DATE, mMovie.getReleaseDate());
+            savedInstanceState.putString(STATE_PLOT, mMovie.getPlot());
+            savedInstanceState.putString(STATE_VOTE_AVERAGE, mMovie.getVoteAverage());
+            savedInstanceState.putString(STATE_TITLE, mMovie.getTitle());
+            savedInstanceState.putString(STATE_POSTER_PATH, mMovie.getPosterPath());
+        } else {
+            //nothing to save, fill with empty strings
+            savedInstanceState.putString(STATE_RELEASE_DATE, "");
+            savedInstanceState.putString(STATE_PLOT, "");
+            savedInstanceState.putString(STATE_VOTE_AVERAGE, "");
+            savedInstanceState.putString(STATE_TITLE, "");
+            savedInstanceState.putString(STATE_POSTER_PATH, "");
+        }
 
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
@@ -88,11 +97,21 @@ public class MovieDetailActivityFragment extends Fragment {
         return mRootView;
     }
 
-    private void updateViews ()
+    private void updateViews () throws IllegalArgumentException
     {
-        Picasso.with(getActivity())
-                .load(mMovie.getPosterPath())
-                .into(((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)));
+        if (mMovie == null) {return;} //if movie null there's nothing to show
+
+        // if poster path is empty don't try to load image
+        if (!mMovie.getPosterPath().equals("")) {
+            try {
+                Picasso.with(getActivity())
+                        .load(mMovie.getPosterPath())
+                        .into(((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)));
+            } catch (IllegalArgumentException e) {
+                throw new IllegalArgumentException(e);
+            }
+        }
+
 
         if(mMovie.getReleaseDate().length() > 4){
             ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate().substring(0,4));
