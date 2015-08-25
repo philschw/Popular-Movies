@@ -45,6 +45,7 @@ public class MainActivityFragment extends Fragment {
     static int scrollIndex;
     static int lastClickedItem = 0;
     OnItemSelectedListener mCallback;
+    View mRootView;
 
     //private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private MovieGridViewAdapter mPopularMoviesAdapter;
@@ -118,12 +119,13 @@ public class MainActivityFragment extends Fragment {
                 R.id.grid_item_movies_imageView,
                 movieArrayList);
 
-        //updateGrid();
+        if(mRootView == null) {
+            mRootView = inflater.inflate(R.layout.fragment_main, container, false);
+        }
 
-        View rootView = inflater.inflate(R.layout.fragment_main, container, false);
 
         // Get a reference to the ListView, and attach this adapter to it.
-        GridView gridView = (GridView) rootView.findViewById(R.id.moviesGridView);
+        GridView gridView = (GridView) mRootView.findViewById(R.id.moviesGridView);
         mMovieGridView = gridView;
         gridView.setAdapter(mPopularMoviesAdapter);
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -141,7 +143,7 @@ public class MainActivityFragment extends Fragment {
             gridView.invalidate();
         }
 
-        return rootView;
+        return mRootView;
     }
 
     private void itemClicked(int position)
@@ -164,9 +166,6 @@ public class MainActivityFragment extends Fragment {
             mMovieGridView.setSelection(scrollIndex);
             mMovieGridView.invalidate();
 
-            if (lastClickedItem == 0) {
-                itemClicked(lastClickedItem);
-            }
         }
 
     }
