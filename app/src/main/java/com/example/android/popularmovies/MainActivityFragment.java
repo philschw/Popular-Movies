@@ -47,7 +47,6 @@ public class MainActivityFragment extends Fragment {
     OnItemSelectedListener mCallback;
     View mRootView;
 
-    //private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     private MovieGridViewAdapter mPopularMoviesAdapter;
     private static GridView mMovieGridView;
     private ArrayList<Movie> movieArrayList = new ArrayList<>();
