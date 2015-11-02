@@ -6,6 +6,7 @@
 package com.example.android.popularmovies;
 
 import android.app.Activity;
+import android.content.ContentValues;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
+import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -85,7 +87,7 @@ public class MainActivityFragment extends Fragment {
             mCallback = (OnItemSelectedListener) activity;
         } catch (ClassCastException e) {
             throw new ClassCastException(activity.toString()
-                    + " must implement OnHeadlineSelectedListener");
+                    + " must implement OnItemSelectedListener");
         }
     }
 
@@ -160,8 +162,24 @@ public class MainActivityFragment extends Fragment {
 
     private void itemClicked(int position, boolean first_init)
     {
+
         if(movieArrayList != null) {
             if(movieArrayList.size() > 0) {
+                //TODO: Test
+                Movie tmp = movieArrayList.get(position);
+                ContentValues values = new ContentValues();
+
+                values.put(MovieContract.MovieEntry.COLUMN_PLOT, tmp.getPlot());
+                values.put(MovieContract.MovieEntry.COLUMN_ID, tmp.getId());
+                values.put(MovieContract.MovieEntry.COLUMN_PLAY_TIME, tmp.getPlayingtime());
+                values.put(MovieContract.MovieEntry.COLUMN_RATING, tmp.getVoteAverage());
+                values.put(MovieContract.MovieEntry.COLUMN_TITLE, tmp.getTitle());
+                values.put(MovieContract.MovieEntry.COLUMN_YEAR, tmp.getReleaseDate());
+
+                Uri uri = getActivity().getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+
+                Toast.makeText(getActivity().getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
+
                 mCallback.newMovieSelected(movieArrayList.get(position), first_init);
             }
         }
@@ -296,6 +314,8 @@ public class MainActivityFragment extends Fragment {
             final String TMDB_POSTER_PATH = "poster_path";
             final String TMDB_VOTE_AVERAGE = "vote_average";
             final String TMDB_PLOT_SYNOPSIS = "overview";
+            final String TMDB_ID = "id";
+
 
             JSONObject moviesJson = new JSONObject(moviesJsonStr);
             JSONArray moviesArray = moviesJson.getJSONArray(TMDB_RESULTS);
@@ -308,6 +328,7 @@ public class MainActivityFragment extends Fragment {
                 String movie_poster;
                 String vote_average;
                 String plot_synopsis;
+                String id;
                 Movie tmpMovie = new Movie();
 
                 // Get the JSON object representing one movie
@@ -319,12 +340,14 @@ public class MainActivityFragment extends Fragment {
                 movie_poster = movieJSONObject.getString(TMDB_POSTER_PATH);
                 vote_average = movieJSONObject.getString(TMDB_VOTE_AVERAGE);
                 plot_synopsis = movieJSONObject.getString(TMDB_PLOT_SYNOPSIS);
+                id = movieJSONObject.getString(TMDB_ID);
 
                 tmpMovie.setPlot(plot_synopsis);
                 tmpMovie.setPosterPath(getString(R.string.poster_base_path) + movie_poster);
                 tmpMovie.setReleaseDate(release_date);
                 tmpMovie.setTitle(original_title);
                 tmpMovie.setVoteAverage(vote_average);
+                tmpMovie.setId(id);
 
 
                 movieArrayList.add(tmpMovie);

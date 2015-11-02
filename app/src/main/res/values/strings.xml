@@ -8,9 +8,16 @@
 
     <string name="default_movie_rating">0</string>
     <string name="default_movie_plot">Plot</string>
+    <string name="default_movie_review_title">Reviews</string>
+    <string name="default_movie_review">Review</string>
+    <string name="default_movie_trailer_title">Trailers</string>
+    <string name="default_movie_trailer">Trailer</string>
     <string name="default_movie_title">Title</string>
     <string name="default_movie_date">2000</string>
     <string name="movie_poster_description">MoviePoster</string>
+
+    <!-- Name of the data base for saving favorite movies -->
+    <string name="db_name">FavoriteMovies</string>
 
 
     <!-- Label for sort order preference [CHAR LIMIT=30] -->

@@ -20,6 +20,8 @@ public class Movie implements Parcelable {
     private String posterPath = "";
     private String voteAverage = "";
     private String plot = "";
+    private String playingtime = "";
+    private String id = "";
 
     public Movie ()
     {
@@ -54,17 +56,19 @@ public class Movie implements Parcelable {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
-    }
+    public void setTitle(String title) { this.title = title; }
 
-    public String getVoteAverage() {
-        return voteAverage;
-    }
+    public String getVoteAverage() { return voteAverage; }
 
-    public void setVoteAverage(String voteAverage) {
-        this.voteAverage = voteAverage;
-    }
+    public void setVoteAverage(String voteAverage) { this.voteAverage = voteAverage; }
+
+    public String getPlayingtime() { return playingtime; }
+
+    public void setPlayingtime(String playingtime) { this.playingtime = playingtime; }
+
+    public String getId() { return id; }
+
+    public void setId(String id) { this.id = id; }
 
     @Override
     public int describeContents() {
@@ -78,6 +82,8 @@ public class Movie implements Parcelable {
         dest.writeString(posterPath);
         dest.writeString(voteAverage);
         dest.writeString(plot);
+        dest.writeString(playingtime);
+        dest.writeString(id);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -96,5 +102,7 @@ public class Movie implements Parcelable {
         posterPath = in.readString();
         voteAverage = in.readString();
         plot = in.readString();
+        playingtime = in.readString();
+        id = in.readString();
     }
 }
