@@ -6,8 +6,8 @@
 package com.example.android.popularmovies;
 
 import android.app.Activity;
-import android.content.ContentValues;
 import android.content.SharedPreferences;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -19,7 +19,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -165,20 +164,6 @@ public class MainActivityFragment extends Fragment {
 
         if(movieArrayList != null) {
             if(movieArrayList.size() > 0) {
-                //TODO: Test
-                Movie tmp = movieArrayList.get(position);
-                ContentValues values = new ContentValues();
-
-                values.put(MovieContract.MovieEntry.COLUMN_PLOT, tmp.getPlot());
-                values.put(MovieContract.MovieEntry.COLUMN_ID, tmp.getId());
-                values.put(MovieContract.MovieEntry.COLUMN_PLAY_TIME, tmp.getPlayingtime());
-                values.put(MovieContract.MovieEntry.COLUMN_RATING, tmp.getVoteAverage());
-                values.put(MovieContract.MovieEntry.COLUMN_TITLE, tmp.getTitle());
-                values.put(MovieContract.MovieEntry.COLUMN_YEAR, tmp.getReleaseDate());
-
-                Uri uri = getActivity().getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
-
-                Toast.makeText(getActivity().getBaseContext(), uri.toString(), Toast.LENGTH_LONG).show();
 
                 mCallback.newMovieSelected(movieArrayList.get(position), first_init);
             }
@@ -193,6 +178,31 @@ public class MainActivityFragment extends Fragment {
 
     private void updateGrid() {
         if(mPopularMoviesAdapter != null && mMovieGridView != null) {
+            if(mSortOrder.equals("favorites")) {
+                mPopularMoviesAdapter.clear();
+                movieArrayList.clear();
+
+                Cursor cursor = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI,
+                        null, null, null, null);
+                if (cursor.moveToFirst()) {
+                    do {
+                        Movie movie = new Movie();
+                        movie.setId(cursor.getString(1));
+                        movie.setTitle(cursor.getString(2));
+                        movie.setReleaseDate(cursor.getString(3));
+                        movie.setPlayingtime(cursor.getString(4));
+                        movie.setVoteAverage(cursor.getString(5));
+                        movie.setPlot(cursor.getString(6));
+                        movie.setPicturepath(cursor.getString(7));
+                        movie.setFavorite("true");
+
+                        movieArrayList.add(movie);
+                        mPopularMoviesAdapter.add(movie);
+
+                    } while (cursor.moveToNext());
+                }
+            }
+
             mMovieGridView.setAdapter(mPopularMoviesAdapter);
             mMovieGridView.requestFocusFromTouch();
             mMovieGridView.smoothScrollToPosition(lastClickedItem);

@@ -57,6 +57,9 @@ public class MovieContract {
         // Description
         public static final String COLUMN_PLOT = "description";
 
+        // Picture path for favorites
+        public static final String COLUMN_PICTURE_PATH = "picturepath";
+
         public static Uri buildMovieUri(long id) {
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }

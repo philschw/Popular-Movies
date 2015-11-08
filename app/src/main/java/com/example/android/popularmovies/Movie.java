@@ -22,6 +22,8 @@ public class Movie implements Parcelable {
     private String plot = "";
     private String playingtime = "";
     private String id = "";
+    private String picturepath = "";
+    private String favorite = "";
 
     public Movie ()
     {
@@ -48,13 +50,13 @@ public class Movie implements Parcelable {
         return releaseDate;
     }
 
-    public void setReleaseDate(String releaseDate) {
-        this.releaseDate = releaseDate;
-    }
+    public void setReleaseDate(String releaseDate) { this.releaseDate = releaseDate; }
 
-    public String getTitle() {
-        return title;
-    }
+    public String getTitle() { return title; }
+
+    public String getPicturepath() { return picturepath; }
+
+    public void setPicturepath(String picturepath) { this.picturepath = picturepath; }
 
     public void setTitle(String title) { this.title = title; }
 
@@ -70,6 +72,10 @@ public class Movie implements Parcelable {
 
     public void setId(String id) { this.id = id; }
 
+    public String getFavorite() { return favorite; }
+
+    public void setFavorite(String favorite) { this.favorite = favorite; }
+
     @Override
     public int describeContents() {
         return 0;
@@ -84,6 +90,8 @@ public class Movie implements Parcelable {
         dest.writeString(plot);
         dest.writeString(playingtime);
         dest.writeString(id);
+        dest.writeString(picturepath);
+        dest.writeString(favorite);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -104,5 +112,8 @@ public class Movie implements Parcelable {
         plot = in.readString();
         playingtime = in.readString();
         id = in.readString();
+        picturepath = in.readString();
+        favorite = in.readString();
     }
+
 }

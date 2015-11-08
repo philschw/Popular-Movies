@@ -16,6 +16,7 @@ import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
+import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +28,7 @@ public class MovieGridViewAdapter extends BaseAdapter {
     private final Context mContext;
     private final List<Movie> movieArrayList = new ArrayList<>();
     private int mViewId = 0;
+    private final String STRING_TRUE = "true";
 
     //private final LayoutInflater inflater;
     //private int resource = 0;
@@ -67,22 +69,39 @@ public class MovieGridViewAdapter extends BaseAdapter {
         viewHolder.tvTitle = (TextView) convertView.findViewById(R.id.grid_item_movies_textView);
         viewHolder.tvTitle.setText(movieArrayList.get(position).getTitle());
 
-        String url = getItem(position).getPosterPath();
+        if (STRING_TRUE.equals(getItem(position).getFavorite())) {
+            Picasso.with(mContext)
+                    .load(new File(getItem(position).getPicturepath()))
+                    .fit()
+                    .into(viewHolder.ivIcon, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.v(LOG_TAG, "Image loaded");
+                        }
 
-        Picasso.with(mContext)
-                .load(url)
-                .fit()
-                .into(viewHolder.ivIcon, new com.squareup.picasso.Callback() {
-                    @Override
-                    public void onSuccess() {
-                        Log.v(LOG_TAG, "Image loaded");
-                    }
+                        @Override
+                        public void onError() {
+                            Log.v(LOG_TAG, "Error while loading image");
+                        }
+                    });
+        } else {
+            Picasso.with(mContext)
+                    .load(getItem(position).getPosterPath())
+                    .fit()
+                    .into(viewHolder.ivIcon, new com.squareup.picasso.Callback() {
+                        @Override
+                        public void onSuccess() {
+                            Log.v(LOG_TAG, "Image loaded");
+                        }
 
-                    @Override
-                    public void onError() {
-                        Log.v(LOG_TAG, "Error while loading image");
-                    }
-                });
+                        @Override
+                        public void onError() {
+                            Log.v(LOG_TAG, "Error while loading image");
+                        }
+                    });
+        }
+
+
 
         return convertView;
     }

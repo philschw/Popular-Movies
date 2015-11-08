@@ -32,7 +32,7 @@ public final class FileHelper {
         } catch (Exception e) {
             e.printStackTrace();
         }
-        return directory.getAbsolutePath();
+        return directory.getAbsolutePath() + "/" + filename;
     }
 
     public Bitmap loadImageFromStorage(String path)

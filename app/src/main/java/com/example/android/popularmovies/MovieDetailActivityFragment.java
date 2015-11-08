@@ -5,7 +5,10 @@
 
 package com.example.android.popularmovies;
 
+import android.content.ContentValues;
 import android.content.Intent;
+import android.database.Cursor;
+import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
@@ -16,6 +19,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
@@ -24,6 +29,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -36,14 +42,19 @@ import java.util.ArrayList;
  * This class preserves it's data when the orientation changes or when it gets paused
  */
 public class MovieDetailActivityFragment extends Fragment {
+    private final String LOG_TAG = MainActivityFragment.class.getSimpleName();
     static final String STATE_RELEASE_DATE = "releaseDate";
     static final String STATE_PLOT = "plot";
     static final String STATE_VOTE_AVERAGE = "voteAverage";
     static final String STATE_TITLE = "title";
     static final String STATE_POSTER_PATH = "posterPath";
+    static final String STATE_FAVORITE = "favorite";
+    static final String STATE_PICTURE_PATH = "picturePath";
+
 
     private Movie mMovie;
     private View mRootView;
+    private String mTrailerLink;
 
     public MovieDetailActivityFragment() {
     }
@@ -51,18 +62,42 @@ public class MovieDetailActivityFragment extends Fragment {
     public void updateContent (Movie movie)
     {
         mMovie = movie;
+
+        if(mRootView != null) {
+            if (mMovie.getFavorite().equals("true") || checkIfInFavorites()) {
+                ToggleButton toggleButton = (ToggleButton) mRootView.findViewById(R.id.toggleButtonFavorite);
+                toggleButton.setChecked(true);
+            }
+
+        }
+
         updateViews();
     }
 
     @Override
+    public void onResume() {
+        super.onResume();
+
+        if(mMovie != null) {
+            if (mMovie.getFavorite().equals("true") || checkIfInFavorites()) {
+                ToggleButton toggleButton = (ToggleButton) mRootView.findViewById(R.id.toggleButtonFavorite);
+                toggleButton.setChecked(true);
+            }
+        }
+    }
+
+    @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
-        // Save the user's current game state
+        // Save the user's current state
         if(mMovie != null) {
             savedInstanceState.putString(STATE_RELEASE_DATE, mMovie.getReleaseDate());
             savedInstanceState.putString(STATE_PLOT, mMovie.getPlot());
             savedInstanceState.putString(STATE_VOTE_AVERAGE, mMovie.getVoteAverage());
             savedInstanceState.putString(STATE_TITLE, mMovie.getTitle());
             savedInstanceState.putString(STATE_POSTER_PATH, mMovie.getPosterPath());
+            if(checkIfInFavorites()) { mMovie.setFavorite("true"); };
+            savedInstanceState.putString(STATE_FAVORITE, mMovie.getFavorite());
+            savedInstanceState.putString(STATE_PICTURE_PATH, mMovie.getPicturepath());
         } else {
             //nothing to save, fill with empty strings
             savedInstanceState.putString(STATE_RELEASE_DATE, "");
@@ -70,6 +105,8 @@ public class MovieDetailActivityFragment extends Fragment {
             savedInstanceState.putString(STATE_VOTE_AVERAGE, "");
             savedInstanceState.putString(STATE_TITLE, "");
             savedInstanceState.putString(STATE_POSTER_PATH, "");
+            savedInstanceState.putString(STATE_FAVORITE, "");
+            savedInstanceState.putString(STATE_PICTURE_PATH, "");
         }
 
         // Always call the superclass so it can save the view hierarchy state
@@ -101,6 +138,8 @@ public class MovieDetailActivityFragment extends Fragment {
             mMovie.setVoteAverage(savedInstanceState.getString(STATE_VOTE_AVERAGE));
             mMovie.setTitle(savedInstanceState.getString(STATE_TITLE));
             mMovie.setPosterPath(savedInstanceState.getString(STATE_POSTER_PATH));
+            mMovie.setFavorite(savedInstanceState.getString(STATE_FAVORITE));
+            mMovie.setPicturepath(savedInstanceState.getString(STATE_PICTURE_PATH));
 
             updateViews();
 
@@ -109,18 +148,85 @@ public class MovieDetailActivityFragment extends Fragment {
         //TODO: not working
         getActivity().setTitle(getString(R.string.title_detail_movie_activity));
 
-        mRootView.findViewById(R.id.textViewTrailer).setOnClickListener(new View.OnClickListener() {
+        //add listener to the toggle image button to add favorite in the db
+        mRootView.findViewById(R.id.toggleButtonFavorite).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                //TODO: Test
+                ContentValues values = new ContentValues();
+
+                values.put(MovieContract.MovieEntry.COLUMN_PLOT, mMovie.getPlot());
+                values.put(MovieContract.MovieEntry.COLUMN_ID, mMovie.getId());
+                values.put(MovieContract.MovieEntry.COLUMN_PLAY_TIME, mMovie.getPlayingtime());
+                values.put(MovieContract.MovieEntry.COLUMN_RATING, mMovie.getVoteAverage());
+                values.put(MovieContract.MovieEntry.COLUMN_TITLE, mMovie.getTitle());
+                values.put(MovieContract.MovieEntry.COLUMN_YEAR, mMovie.getReleaseDate());
+
+                if(checkIfInFavorites()) {
+                    //Toast.makeText(getActivity().getBaseContext(), String.valueOf("In Favorites!"), Toast.LENGTH_LONG).show();
+
+                    int nrDeletedLines = getActivity().getContentResolver().delete(
+                            MovieContract.MovieEntry.CONTENT_URI,
+                            MovieContract.MovieEntry.COLUMN_ID + "=?",
+                            new String[] {mMovie.getId()});
+                } else {
+                    FileHelper fh = new FileHelper();
+
+                    try {
+                        mMovie.setPicturepath(
+                                fh.saveToInternalSorage(
+                                        getActivity().getApplicationContext(),
+                                        ((BitmapDrawable) ((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)).getDrawable()).getBitmap(),
+                                        mMovie.getId() + ".jpg"));
+
+                        mMovie.setFavorite("true");
+                    } catch (NullPointerException e) {
+                        Toast.makeText(getActivity().getBaseContext(), String.valueOf("Wasn't able to save bitmap"), Toast.LENGTH_LONG).show();
+                        Log.e(LOG_TAG, e.toString());
+                    }
+
+
+                    values.put(MovieContract.MovieEntry.COLUMN_PICTURE_PATH, mMovie.getPicturepath());
+
+                    Uri uri = getActivity().getContentResolver().insert(MovieContract.MovieEntry.CONTENT_URI, values);
+                }
+            }
+        });
+
+        mRootView.findViewById(R.id.imageButtonTrailers).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Intent intent = new Intent(Intent.ACTION_VIEW);
 
-                intent.setData(Uri.parse( ((TextView)mRootView.findViewById(R.id.textViewTrailer)).getText().toString()));
+                intent.setData(Uri.parse(mTrailerLink));
                 startActivity(intent);
-                //((TextView) mRootView.findViewById(R.id.textViewTrailer)).setText("Clicked");
             }
         });
 
         return mRootView;
+    }
+
+    private boolean checkIfInFavorites()
+    {
+        if(mMovie != null) {
+            String selection = MovieContract.MovieEntry.COLUMN_ID + "='" + mMovie.getId() + "'";
+
+            String[] projection = {
+                    MovieContract.MovieEntry.COLUMN_ID
+            };
+
+            Cursor cursor = getActivity().getContentResolver().query(MovieContract.MovieEntry.CONTENT_URI, projection, selection, null, null);
+
+            if (cursor.moveToFirst()) {
+                cursor.close();
+                return true;
+            } else {
+                cursor.close();
+                return false;
+            }
+        } else {
+            return false;
+        }
     }
 
     private void updateViews () throws IllegalArgumentException
@@ -130,14 +236,27 @@ public class MovieDetailActivityFragment extends Fragment {
 
         if (mMovie == null) {return;} //if movie null there's nothing to show
 
-        // if poster path is empty don't try to load image
-        if (!mMovie.getPosterPath().equals("")) {
-            try {
-                Picasso.with(getActivity())
-                        .load(mMovie.getPosterPath())
-                        .into(((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)));
-            } catch (IllegalArgumentException e) {
-                throw new IllegalArgumentException(e);
+        if(!mMovie.getFavorite().equals("true")) {
+            // if poster path is empty don't try to load image
+            if (!mMovie.getPosterPath().equals("")) {
+                try {
+                    Picasso.with(getActivity())
+                            .load(mMovie.getPosterPath())
+                            .into(((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(e);
+                }
+            }
+        } else {
+            // if picture path is empty don't try to load image
+            if (!mMovie.getPicturepath().equals("")) {
+                try {
+                    Picasso.with(getActivity())
+                            .load(new File(mMovie.getPicturepath()))
+                            .into(((ImageView) mRootView.findViewById(R.id.detail_movies_imageView)));
+                } catch (IllegalArgumentException e) {
+                    throw new IllegalArgumentException(e);
+                }
             }
         }
 
@@ -164,7 +283,8 @@ public class MovieDetailActivityFragment extends Fragment {
         protected void onPostExecute(ArrayList<String[]> result) {
             if(result != null) {
                 ((TextView) mRootView.findViewById(R.id.textViewReview)).setText(result.get(0)[0]);
-                ((TextView) mRootView.findViewById(R.id.textViewTrailer)).setText(result.get(1)[0]);
+                mTrailerLink = result.get(1)[0];
+                ((TextView) mRootView.findViewById(R.id.textViewTrailer)).setText("Trailer 1");
             }
         }
 

@@ -32,7 +32,6 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
 
     }
 
-
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
@@ -59,7 +58,7 @@ public class MainActivity extends AppCompatActivity implements OnItemSelectedLis
     @Override
     public void newMovieSelected(Movie movie, boolean first_init) {
         android.support.v4.app.Fragment f = getSupportFragmentManager().findFragmentById(R.id.detailFragment);
-        if(f != null && f instanceof MovieDetailActivityFragment){
+        if(f != null && f instanceof MovieDetailActivityFragment && f.isAdded()){
             // Fragment is in the layout (tablet layout),
             // so tell the fragment to update
             MovieDetailActivityFragment movieDetailActivityFragment = (MovieDetailActivityFragment) f;

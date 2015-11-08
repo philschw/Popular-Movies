@@ -84,10 +84,9 @@
                             android:textSize="@dimen/text_small"/>
                     </LinearLayout>
                     <ToggleButton
-                        android:id="@+id/imageButtonFavorite"
-                        android:layout_width="0dp"
+                        android:id="@+id/toggleButtonFavorite"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:layout_weight="0.5"
                         android:textOn=""
                         android:textOff=""
                         android:background="@drawable/button_background_selector"/>
@@ -141,11 +140,24 @@
                     android:id="@+id/textViewTrailerTitle"
                     android:padding="@dimen/text_padding" />
 
-                <TextView android:text="@string/default_movie_trailer"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:id="@+id/textViewTrailer"
-                    android:padding="@dimen/text_padding" />
+                <LinearLayout
+                    android:layout_width="fill_parent"
+                    android:layout_height="0dp"
+                    android:layout_weight="0.5"
+                    android:orientation="horizontal">
+                    <ImageButton
+                        android:id="@+id/imageButtonTrailers"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:src="@android:drawable/ic_media_play"/>
+                    <TextView android:text="@string/default_movie_trailer"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="0.9"
+                        android:id="@+id/textViewTrailer"
+                        android:padding="@dimen/text_padding" />
+                </LinearLayout>
+
             </LinearLayout>
 
 
