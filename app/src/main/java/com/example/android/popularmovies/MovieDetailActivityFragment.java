@@ -50,6 +50,7 @@ public class MovieDetailActivityFragment extends Fragment {
     static final String STATE_POSTER_PATH = "posterPath";
     static final String STATE_FAVORITE = "favorite";
     static final String STATE_PICTURE_PATH = "picturePath";
+    static final String STATE_TRAILER_URL = "trailerURL";
 
 
     private Movie mMovie;
@@ -62,6 +63,8 @@ public class MovieDetailActivityFragment extends Fragment {
     public void updateContent (Movie movie)
     {
         mMovie = movie;
+
+        ((MovieDetailActivity) getActivity()).setShareURL(mMovie.getTrailer_url());
 
         if(mRootView != null) {
             if (mMovie.getFavorite().equals("true") || checkIfInFavorites()) {
@@ -98,6 +101,7 @@ public class MovieDetailActivityFragment extends Fragment {
             if(checkIfInFavorites()) { mMovie.setFavorite("true"); };
             savedInstanceState.putString(STATE_FAVORITE, mMovie.getFavorite());
             savedInstanceState.putString(STATE_PICTURE_PATH, mMovie.getPicturepath());
+            savedInstanceState.putString(STATE_TRAILER_URL, mMovie.getTrailer_url());
         } else {
             //nothing to save, fill with empty strings
             savedInstanceState.putString(STATE_RELEASE_DATE, "");
@@ -107,6 +111,7 @@ public class MovieDetailActivityFragment extends Fragment {
             savedInstanceState.putString(STATE_POSTER_PATH, "");
             savedInstanceState.putString(STATE_FAVORITE, "");
             savedInstanceState.putString(STATE_PICTURE_PATH, "");
+            savedInstanceState.putString(STATE_TRAILER_URL, "");
         }
 
         // Always call the superclass so it can save the view hierarchy state
@@ -140,6 +145,7 @@ public class MovieDetailActivityFragment extends Fragment {
             mMovie.setPosterPath(savedInstanceState.getString(STATE_POSTER_PATH));
             mMovie.setFavorite(savedInstanceState.getString(STATE_FAVORITE));
             mMovie.setPicturepath(savedInstanceState.getString(STATE_PICTURE_PATH));
+            mMovie.setTrailer_url(savedInstanceState.getString(STATE_TRAILER_URL));
 
             updateViews();
 
@@ -260,7 +266,6 @@ public class MovieDetailActivityFragment extends Fragment {
             }
         }
 
-
         if(mMovie.getReleaseDate().length() > 4){
             ((TextView) mRootView.findViewById(R.id.textViewDate)).setText(mMovie.getReleaseDate().substring(0,4));
         } else{
@@ -275,6 +280,8 @@ public class MovieDetailActivityFragment extends Fragment {
             ((TextView) mRootView.findViewById(R.id.textViewRating)).setText("na/10");
         }
         ((TextView) mRootView.findViewById(R.id.textViewTitle)).setText(mMovie.getTitle());
+
+        ((MovieDetailActivity) getActivity()).setShareURL(mMovie.getTrailer_url());
     }
 
     public class FetchMovieData extends AsyncTask<String,Integer,ArrayList<String[]>> {
@@ -285,6 +292,8 @@ public class MovieDetailActivityFragment extends Fragment {
                 ((TextView) mRootView.findViewById(R.id.textViewReview)).setText(result.get(0)[0]);
                 mTrailerLink = result.get(1)[0];
                 ((TextView) mRootView.findViewById(R.id.textViewTrailer)).setText("Trailer 1");
+                mMovie.setTrailer_url(mTrailerLink);
+                ((MovieDetailActivity) getActivity()).setShareURL(mMovie.getTrailer_url());
             }
         }
 

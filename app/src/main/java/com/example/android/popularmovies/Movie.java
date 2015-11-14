@@ -24,6 +24,7 @@ public class Movie implements Parcelable {
     private String id = "";
     private String picturepath = "";
     private String favorite = "";
+    private String trailer_url = "";
 
     public Movie ()
     {
@@ -76,6 +77,11 @@ public class Movie implements Parcelable {
 
     public void setFavorite(String favorite) { this.favorite = favorite; }
 
+    public String getTrailer_url() { return trailer_url; }
+
+    public void setTrailer_url(String trailer_url) { this.trailer_url = trailer_url; }
+
+
     @Override
     public int describeContents() {
         return 0;
@@ -92,6 +98,7 @@ public class Movie implements Parcelable {
         dest.writeString(id);
         dest.writeString(picturepath);
         dest.writeString(favorite);
+        dest.writeString(trailer_url);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR = new Parcelable.Creator<Movie>() {
@@ -114,6 +121,6 @@ public class Movie implements Parcelable {
         id = in.readString();
         picturepath = in.readString();
         favorite = in.readString();
+        trailer_url = in.readString();
     }
-
 }
